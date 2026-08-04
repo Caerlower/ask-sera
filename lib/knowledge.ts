@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-export type KnowledgeChunk = {
+type KnowledgeChunk = {
   id: string;
   source: string;
   title: string;
@@ -22,7 +22,9 @@ const ALIASES: Record<string, string[]> = {
   live: ["mainnet", "production", "deployed", "available"],
   chain: ["mainnet", "ethereum", "network", "chain_id", "sepolia"],
   ethereum: ["mainnet", "chain", "network"],
-  gsera: ["loyalty", "points", "rewards", "ambassador"],
+  gsera: ["loyalty", "points", "rewards", "referral", "xp"],
+  xp: ["gsera", "badge", "community", "rank"],
+  referral: ["gsera", "trade", "community"],
   earn: ["lp", "yield", "liquidity", "apy", "spread", "maker"],
   pay: ["serapay", "payment", "merchant", "checkout", "qr"],
   agent: ["agents", "mcp", "sera-agent", "sera-mcp"],
@@ -34,8 +36,15 @@ const ALIASES: Record<string, string[]> = {
   goldsky: ["subgraph", "graphql", "v1"],
   telegram: ["community", "group"],
   "t.me": ["telegram", "community"],
-  docs: ["documentation", "links", "testnet"],
-  deepwiki: ["docs", "links"],
+  docs: ["documentation", "community", "testnet"],
+  deepwiki: ["docs", "community"],
+  token2049: ["singapore", "sponsor", "sponsorship", "evangelist", "community"],
+  "token-2049": ["token2049", "singapore", "sponsor"],
+  sponsorship: ["sponsor", "token2049", "evangelist", "community"],
+  sponsor: ["sponsorship", "token2049", "gold", "evangelist"],
+  evangelist: ["token2049", "community", "gsera"],
+  ambassador: ["community", "evangelist", "token2049"],
+  community: ["evangelist", "telegram", "gsera", "xp"],
   quote: ["swap", "executable", "liquidity", "route_params"],
   quotes: ["quote", "swap", "executable"],
   quoting: ["quote", "swap", "liquidity"],
@@ -62,6 +71,7 @@ const ALIASES: Record<string, string[]> = {
 };
 
 const ALWAYS_INCLUDE = new Set(["assistant-policy.md"]);
+const FALLBACK_SOURCES = new Set(["overview.md", "assistant-policy.md"]);
 
 function tokenize(text: string): string[] {
   return text
@@ -101,6 +111,11 @@ function queryPhrases(query: string): string[] {
     "sera-agent",
     "eip-712",
     "eip712",
+    "token2049",
+    "token 2049",
+    "evangelist trips",
+    "gold sponsor",
+    "community.sera.cx",
   ];
   for (const p of candidates) {
     if (q.includes(p)) phrases.push(p);
@@ -128,7 +143,9 @@ function splitChunks(source: string, raw: string): KnowledgeChunk[] {
 let cache: { stamp: string; chunks: KnowledgeChunk[] } | null = null;
 
 function knowledgeStamp(dir: string): string {
-  const files = readdirSync(dir).filter((f) => f.endsWith(".md")).sort();
+  const files = readdirSync(dir)
+    .filter((f) => f.endsWith(".md") && f !== "README.md")
+    .sort();
   return files
     .map((f) => {
       const s = statSync(join(dir, f));
@@ -137,7 +154,7 @@ function knowledgeStamp(dir: string): string {
     .join("|");
 }
 
-export function loadKnowledge(): KnowledgeChunk[] {
+function loadKnowledge(): KnowledgeChunk[] {
   const dir = join(process.cwd(), "knowledge");
   const stamp = knowledgeStamp(dir);
   if (cache?.stamp === stamp) return cache.chunks;
@@ -158,7 +175,6 @@ function preferSources(query: string): string[] {
   const q = query.toLowerCase();
   const preferred: string[] = [];
 
-  // Deep quoting / liquidity questions — put specialist docs first
   if (
     /\b(no[_ ]?liquidity|fx\/?rate|swap\/?quote|eurc|market.?maker|depth|corridor|executable|reference rate|integrator)\b/.test(
       q,
@@ -166,67 +182,59 @@ function preferSources(query: string): string[] {
     /\b(usdc|usdt).{0,40}(eurc|eur)\b/.test(q) ||
     /\b(quote|quoting|liquidity).{0,40}(mainnet|pair|swap)\b/.test(q)
   ) {
-    preferred.push(
-      "quoting-liquidity.md",
-      "mainnet-liquidity.md",
-      "api-auth-fx.md",
-      "rest-api-extras.md",
-      "earn.md",
-      "status-faq.md",
-    );
+    preferred.push("liquidity.md", "api.md", "products.md", "overview.md");
   }
 
   if (/\b(mainnet|testnet|sepolia|chain|ethereum|live|deploy|is sera)\b/.test(q)) {
-    preferred.push("status-faq.md", "networks-contracts.md", "roadmap.md");
+    preferred.push("overview.md", "contracts.md", "products.md");
   }
-  if (/\b(gsera|loyalty|points|ambassador|xp)\b/.test(q)) preferred.push("gsera.md");
+  if (/\b(gsera|loyalty|points|xp|referral|referrals)\b/.test(q)) {
+    preferred.push("products.md", "community.md");
+  }
   if (/\b(earn|lp|yield|apy|liquidity provider|virtual liquidity)\b/.test(q)) {
-    preferred.push("earn.md", "quoting-liquidity.md");
+    preferred.push("products.md", "liquidity.md");
   }
-  if (/\b(pay|serapay|merchant|checkout|qr)\b/.test(q)) preferred.push("pay.md");
-  if (/\b(on par|on-par|same-peg|1:1)\b/.test(q)) preferred.push("on-par.md");
-  if (/\b(mcp|sera-mcp|sera-agent|agent)\b/.test(q)) {
-    preferred.push("sera-mcp.md", "sera-agents.md");
-  }
+  if (/\b(pay|serapay|merchant|checkout|qr)\b/.test(q)) preferred.push("products.md");
+  if (/\b(on par|on-par|same-peg|1:1)\b/.test(q)) preferred.push("products.md", "liquidity.md");
+  if (/\b(mcp|sera-mcp|sera-agent|agent)\b/.test(q)) preferred.push("agents.md");
   if (/\b(sign|order|uuid|eip-712|eip712|error_code|gas_mode|route_params)\b/.test(q)) {
-    preferred.push("signing-orders.md", "rest-api-extras.md", "api-auth-fx.md");
+    preferred.push("api.md");
   }
-  if (/\b(v1|v2|router|priceindex|pricebook|vault|subgraph|goldsky|graphql)\b/.test(q)) {
-    preferred.push("v1-vs-v2.md", "graphql-subgraph.md", "contracts.md");
+  if (/\b(v1|v2|router|priceindex|pricebook|vault|subgraph|goldsky|graphql|contract|config)\b/.test(q)) {
+    preferred.push("contracts.md");
   }
   if (/\b(sample|third.?party|unofficial|seraprotocol-sample)\b/.test(q)) {
-    preferred.push("sample-repo.md", "links.md");
+    preferred.push("community.md");
   }
-  if (/\b(telegram|t\.me|community|discord|twitter|linkedin|support|contact|group chat|social)\b/.test(q)) {
-    preferred.push("community.md", "company.md", "links.md");
+  if (/\b(telegram|t\.me|community|discord|twitter|linkedin|support|contact|group chat|social|ambassador|token ?2049|sponsor|sponsorship|evangelist)\b/.test(q)) {
+    preferred.push("community.md", "overview.md", "products.md");
   }
   if (
     /\b(founder|founders|ceo|douglas|gan|who (founded|started|created|built|runs)|headquarters|hq|based|singapore|team|about (the )?compan|who is behind|linkedin|twitter)\b/.test(
       q,
     )
   ) {
-    preferred.push("company.md", "community.md", "overview.md", "status-faq.md", "links.md");
+    preferred.push("overview.md", "community.md");
   }
-  if (/\b(api-keys|503|health|rate.?limit)\b/.test(q)) {
-    preferred.push("mainnet-liquidity.md", "rest-api-extras.md", "api-auth-fx.md");
+  if (/\b(api-keys|503|health|rate.?limit|api)\b/.test(q)) {
+    preferred.push("api.md", "liquidity.md", "agents.md");
   }
   if (/\b(deepwiki|docs\.|official link|where.*(docs|api))\b/.test(q)) {
-    preferred.push("links.md");
+    preferred.push("community.md", "overview.md");
   }
   if (/\b(what is sera|sera protocol|overview|product|tell me about sera|explain sera)\b/.test(q)) {
-    preferred.push("overview.md", "products-overview.md", "company.md", "status-faq.md");
+    preferred.push("overview.md", "products.md");
   }
   if (
     /\b(all|list|show|name).{0,20}\b(currenc(?:y|ies)|tokens?|coins?|stablecoins?)\b/.test(q) ||
     /\b(currenc(?:y|ies)|tokens?|coins?|stablecoins?).{0,30}\b(swap|trade|supported|available)\b/.test(q) ||
     /\b(live (api|data|tool)|get \/tokens)\b/.test(q)
   ) {
-    preferred.push("live-tools.md", "api-auth-fx.md");
+    preferred.push("agents.md", "api.md");
   }
 
-  // Light defaults only when nothing topical matched
   if (preferred.length === 0) {
-    preferred.push("status-faq.md", "overview.md");
+    preferred.push("overview.md", "products.md");
   }
 
   return preferred;
@@ -240,7 +248,7 @@ export function retrieveKnowledge(query: string, limit = 8): KnowledgeChunk[] {
 
   if (qTokens.length === 0) {
     return chunks
-      .filter((c) => c.source === "status-faq.md" || c.source === "overview.md" || ALWAYS_INCLUDE.has(c.source))
+      .filter((c) => FALLBACK_SOURCES.has(c.source))
       .slice(0, limit);
   }
 
@@ -261,8 +269,7 @@ export function retrieveKnowledge(query: string, limit = 8): KnowledgeChunk[] {
       if (sourceLower.includes(phrase.replace(/\//g, "").replace(/ /g, ""))) score += 2;
     }
 
-    // Soft boosts for specialist docs when query looks technical
-    if (chunk.source === "quoting-liquidity.md" && /\b(quote|liquidity|fx|eurc|depth)\b/.test(qLower)) {
+    if (chunk.source === "liquidity.md" && /\b(quote|liquidity|fx|eurc|depth)\b/.test(qLower)) {
       score += 3;
     }
     if (chunk.source === "assistant-policy.md") score += 0.25;
@@ -274,7 +281,6 @@ export function retrieveKnowledge(query: string, limit = 8): KnowledgeChunk[] {
   const top = scored.filter((s) => s.score > 0).slice(0, limit).map((s) => s.chunk);
   const byId = new Map(top.map((c) => [c.id, c]));
 
-  // Ensure preferred sources for this query are represented (best chunk per source)
   for (const source of preferSources(query)) {
     const hit = scored.find((s) => s.chunk.source === source && s.score > 0)
       ?? scored.find((s) => s.chunk.source === source);
@@ -294,13 +300,10 @@ export function retrieveKnowledge(query: string, limit = 8): KnowledgeChunk[] {
 
   const merged = [...byId.values()];
   if (merged.length === 0) {
-    return chunks.filter(
-      (c) => c.source === "status-faq.md" || c.source === "overview.md" || c.source === "assistant-policy.md",
-    );
+    return chunks.filter((c) => FALLBACK_SOURCES.has(c.source));
   }
 
   const scoreMap = new Map(scored.map((s) => [s.chunk.id, s.score]));
-  // Keep policy near the top of context so style rules stick
   merged.sort((a, b) => {
     const policyBoost = (c: KnowledgeChunk) => (c.source === "assistant-policy.md" ? 1000 : 0);
     return policyBoost(b) + (scoreMap.get(b.id) ?? 0) - (policyBoost(a) + (scoreMap.get(a.id) ?? 0));
@@ -315,7 +318,7 @@ export function formatRetrievedContext(chunks: KnowledgeChunk[]): string {
     .join("\n\n---\n\n");
 
   return [
-    "Ground truth for this turn. Prefer specific guides (quoting-liquidity, signing, mcp) over overview when they apply.",
+    "Ground truth for this turn. Prefer specialist docs (liquidity, api, agents, contracts) over overview when they apply.",
     "If notes are dated community snapshots, say to re-check live APIs. Do not invent ETAs or current depth.",
     "",
     body,

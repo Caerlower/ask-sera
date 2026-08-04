@@ -1,13 +1,11 @@
-import { groq } from "@ai-sdk/groq";
-import { streamText } from "ai";
+import { publicErrorMessage } from "@/lib/errors";
 import { formatRetrievedContext, retrieveKnowledge } from "@/lib/knowledge";
 import { prefetchLiveContext } from "@/lib/live-context";
+import { hasLlmCredentials, streamChatWithFailover } from "@/lib/llm";
 import { SYSTEM_PROMPT } from "@/lib/prompt";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
-
-const DEFAULT_MODEL = "llama-3.3-70b-versatile";
 
 type ChatMessage = {
   role: "user" | "assistant" | "system";
@@ -15,10 +13,10 @@ type ChatMessage = {
 };
 
 export async function POST(req: Request) {
-  if (!process.env.GROQ_API_KEY) {
+  if (!hasLlmCredentials()) {
     return Response.json(
-      { error: "GROQ_API_KEY is not configured on the server." },
-      { status: 500 },
+      { error: "Chat is temporarily unavailable. Please try again later." },
+      { status: 503 },
     );
   }
 
@@ -43,39 +41,25 @@ export async function POST(req: Request) {
     return Response.json({ error: "Message too long." }, { status: 413 });
   }
 
-  const live = await prefetchLiveContext(query);
-  const knowledgeLimit = live?.label === "live:/tokens" ? 3 : 8;
-  const chunks = retrieveKnowledge(query, knowledgeLimit);
-  const context = formatRetrievedContext(chunks);
-  const sources = [
-    ...new Set([
-      ...chunks.map((c) => c.source),
-      ...(live?.used ? [live.label] : []),
-    ]),
-  ];
+  try {
+    const live = await prefetchLiveContext(query);
+    const knowledgeLimit = live?.label === "live:/tokens" ? 3 : 8;
+    const chunks = retrieveKnowledge(query, knowledgeLimit);
+    const context = formatRetrievedContext(chunks);
 
-  const liveBlock = live?.markdown
-    ? `\n\n## Live API snapshot\n\n${live.markdown}\n\nWhen a Live API snapshot is present, treat it as ground truth for that question. For full currency lists, output every symbol from the snapshot — never truncate with “and N more”, and never tell the user to call GET /tokens themselves.`
-    : "";
+    const liveBlock = live?.markdown
+      ? `\n\n## Live API snapshot\n\n${live.markdown}\n\nWhen a Live API snapshot is present, treat it as ground truth for that question. For full currency lists, output every symbol from the snapshot — never truncate with “and N more”, and never tell the user to call GET /tokens themselves.`
+      : "";
 
-  const result = streamText({
-    model: groq(process.env.GROQ_MODEL ?? DEFAULT_MODEL),
-    system: `${SYSTEM_PROMPT}\n\n## Retrieved knowledge\n\n${context}${liveBlock}`,
-    messages: messages
-      .filter((m) => m.role === "user" || m.role === "assistant")
-      .slice(-12)
-      .map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
-    temperature: 0.25,
-    maxTokens: 3200,
-  });
-
-  return result.toDataStreamResponse({
-    getErrorMessage(error) {
-      if (error instanceof Error && error.message) return error.message;
-      return "Something went wrong answering that. Try again in a moment.";
-    },
-    headers: {
-      "x-sera-ask-sources": sources.join(","),
-    },
-  });
+    return await streamChatWithFailover({
+      system: `${SYSTEM_PROMPT}\n\n## Retrieved knowledge\n\n${context}${liveBlock}`,
+      messages: messages
+        .filter((m) => m.role === "user" || m.role === "assistant")
+        .slice(-12)
+        .map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+    });
+  } catch (error) {
+    console.error("[ask-sera/chat]", error);
+    return Response.json({ error: publicErrorMessage(error) }, { status: 500 });
+  }
 }

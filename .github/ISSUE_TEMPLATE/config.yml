@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Sera Protocol docs
+    url: https://docs.sera.cx
+    about: Official product documentation (not this repo)
+  - name: sera-mcp
+    url: https://github.com/sera-cx/sera-mcp
+    about: Official MCP / trading tools

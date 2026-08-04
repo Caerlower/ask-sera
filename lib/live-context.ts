@@ -9,7 +9,7 @@ import {
   type SeraNetwork,
 } from "@/lib/sera-api";
 
-export type LivePrefetch = {
+type LivePrefetch = {
   used: boolean;
   label: string;
   markdown: string;

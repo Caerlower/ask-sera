@@ -1,69 +1,26 @@
-# Maintaining Ask Sera knowledge
+# Knowledge pack
 
-Ask Sera only knows what is in `knowledge/*.md`. It does **not** crawl docs.sera.cx or GitHub at runtime.
+Ask Sera answers from these markdown files (plus optional live public API prefetch). It does **not** crawl the web.
 
-## Official vs third-party
-
-- Put **official** protocol/product facts in topic files (`status-faq`, `earn`, `sera-mcp`, …).
-- `sample-repo.md` exists only to warn that community sample apps are **not** official Sera products.
-- Never add “Sera ships telegram bot X” unless it is an official `sera-cx` / sera.cx surface.
-
-## When an answer is wrong or thin
-
-1. Reproduce the question in the UI.
-2. Check whether a matching fact exists under `knowledge/`.
-   - Missing → add or update a markdown file (prefer FAQ-style clear statements).
-   - Present but missed → improve headings/keywords or retrieval (see `lib/knowledge.ts`).
-3. Restart `npm run dev` after big knowledge edits (module cache).
-4. Re-ask the same question.
-
-## How to add a topic
-
-1. Create `knowledge/<topic>.md` with a clear `#` title and `##` sections.
-2. Lead with a direct answer in the first paragraph (“**Yes.** Sera is live on Ethereum Mainnet…”).
-3. Add a short “Keywords” / alias line for slang users might type.
-4. Link official sources (`docs.sera.cx`, `sera.cx/...`) for the user to verify.
-5. Keep live vs roadmap explicit.
-6. For integrator/API gotchas, prefer or extend `quoting-liquidity.md`, `signing-orders.md`, or `rest-api-extras.md` instead of burying facts only in overview.
-
-## Core specialist files
-
-| File | Use when |
+| File | Topic |
 |---|---|
-| `company.md` | Founder, CEO, HQ, general company FAQ |
-| `assistant-policy.md` | Always — answer quality bar |
-| `quoting-liquidity.md` | `/fx/rate` vs `/swap/quote`, `no_liquidity`, corridor depth |
-| `mainnet-liquidity.md` | Dated Jul 2026 community + founder notes |
-| `status-faq.md` | Is it live? which chain? |
-| `community.md` | Telegram / socials only |
-## Good chunk style
+| `assistant-policy.md` | Answer rules (always loaded) |
+| `overview.md` | What Sera is, status, founder |
+| `products.md` | Earn, Pay, On Par, gSera, roadmap |
+| `api.md` | REST auth, signing, errors |
+| `liquidity.md` | FX vs quote, `no_liquidity` |
+| `agents.md` | MCP, agents, live prefetch |
+| `contracts.md` | Networks, addresses, v1/v2 |
+| `community.md` | Community hub, Token2049 (stated facts only) |
 
-```md
-# What is X?
+## Editing rules (keep this sanity-checked)
 
-**One-sentence direct answer.**
+1. **Facts only** — copy what official pages/docs/APIs state. No inferred process, no guessed deadlines, no invented side-event weeks.
+2. Prefer updating an existing file over adding a new one.
+3. Use `##` headings (retrieval splits on them).
+4. Put critical facts near the top of each section.
+5. Snapshot addresses → always say re-check `GET /config`.
+6. Marketing numbers (APY, “~40 stables”) → label as approximate / non-guarantee.
+7. Restart `pnpm dev` after edits, then re-test the question.
 
-## Details
-...
-
-## Keywords
-x, alias, slang
-```
-
-Chunks split on `##` headings — put the critical fact near the top of a section.
-
-## Periodic refresh
-
-Re-check against:
-
-- `GET https://api.sera.cx/api/v1/config`
-- [docs.sera.cx](https://docs.sera.cx)
-- Product pages: earn, on-par, agents.sera.cx, ambassador.sera.cx
-
-Update addresses and “live vs planned” language whenever the protocol ships a phase change.
-
-## Do not
-
-- Paste entire unreviewed marketing pages without marking indicative APYs
-- Invent tokenomics, contract addresses, or claim something is live without a source
-- Put secrets in knowledge files
+See [CONTRIBUTING.md](../CONTRIBUTING.md).

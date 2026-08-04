@@ -19,7 +19,11 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Ask Sera",
   description: "Ask anything about Sera Protocol — products, API, agents, and community.",
-  metadataBase: new URL("https://ask.sera.cx"),
+  metadataBase: new URL("https://github.com/Caerlower/ask-sera"),
+  icons: {
+    icon: [{ url: "/sera-mark.png", type: "image/png" }],
+    apple: [{ url: "/sera-mark.png" }],
+  },
 };
 
 export const viewport: Viewport = {

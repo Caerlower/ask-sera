@@ -1,6 +1,6 @@
 /**
- * Thin public Sera REST client for Ask Sera live tools.
- * Same data surface as sera-mcp read tools (tokens, markets, fx, health, config, quote).
+ * Thin public Sera REST client for Ask Sera live prefetch.
+ * Same catalogs as sera-mcp read endpoints (tokens, markets, fx, health, config).
  */
 
 export type SeraNetwork = "mainnet" | "sepolia";
@@ -52,7 +52,7 @@ export function resolveNetwork(network?: string): SeraNetwork {
   return n === "sepolia" || n === "testnet" ? "sepolia" : "mainnet";
 }
 
-export function apiBase(network?: string): string {
+function apiBase(network?: string): string {
   const override = process.env.SERA_API_BASE?.trim();
   if (override) return override.replace(/\/+$/, "");
   return BASES[resolveNetwork(network)];
@@ -201,22 +201,6 @@ export async function getConfig(network?: string) {
   if (cached) return cached;
   const data = await seraFetch<Record<string, unknown>>("/config", { network: net });
   return ttlSet(key, data);
-}
-
-export async function swapQuote(
-  body: {
-    from_address: string;
-    to_address: string;
-    amount: string;
-    side?: string;
-  },
-  network?: string,
-) {
-  return seraFetch<Record<string, unknown>>("/swap/quote", {
-    network,
-    method: "POST",
-    body,
-  });
 }
 
 export function groupTokensByFiat(tokens: SeraToken[]) {

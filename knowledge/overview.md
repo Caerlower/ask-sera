@@ -1,62 +1,52 @@
 # What is Sera Protocol?
 
-**Direct answer:** Sera is multi-currency settlement infrastructure for stablecoin FX. Apps and AI agents use it to quote, convert, and settle across ~40 stablecoins and ~22 fiat currencies (USD, SGD, MYR, JPY, EUR, GBP, BRL, MXN, IDR, and more) with non-custodial on-chain settlement on Ethereum.
+Sera is **multi-currency settlement infrastructure for stablecoin FX**: quote, convert, and settle stablecoin corridors with **non-custodial on-chain settlement on Ethereum**.
 
-## How to explain “What is Sera?” (use this depth by default)
+## Core facts
 
-When someone asks what Sera is, cover all of the following — not just the one-liner:
+- **Live product phase:** Swap (CLOB + settlement).
+- **Networks:** Ethereum Mainnet (`chain_id=1`) and Sepolia (`11155111`).
+- **Founder & CEO:** Douglas Gan.
+- **Surfaces:** Swap/API, Earn (LP), Pay, Agents/MCP, On Par (same-peg), gSera (loyalty points — not the settlement token).
+- Marketing materials also cite ~40 stablecoins / many fiat corridors; treat counts as approximate — prefer live `GET /tokens` for the current list.
+- Corridor depth varies; not every pair is always tradeable.
 
-1. **Problem** — Cross-border FX and multi-stablecoin settlement is slow/expensive via banks; non-USD stables need real utility beyond trading.
-2. **What Sera does** — Non-custodial CLOB + on-chain settlement for stablecoin FX corridors (Swap is the live phase).
-3. **Who it’s for** — Merchants, remittance/payroll/PSPs, treasuries, and AI agents (via MCP / agents.sera.cx).
-4. **Product surfaces** — briefly name Swap/API, Earn (LP spreads), Pay, Agents/MCP, On Par (same-peg 1:1), gSera (loyalty).
-5. **Status** — Live on Ethereum Mainnet and Sepolia; not every corridor has depth yet.
-6. **Company** — Founded by Douglas Gan (CEO); Singapore-associated; ~2025.
-
-Keep it concrete. Skip marketing slogans.
-
-**Founder & CEO:** Douglas Gan. Company base publicly associated with Singapore (founded ~2025). See `company.md`.
-
-## Core surfaces
+## Product map
 
 | Surface | Role |
 |---|---|
-| **Sera API** (`api.sera.cx`) | REST exchange: tokens, markets, FX, quotes, orders, vault, withdraw |
-| **sera-mcp** | Model Context Protocol server — ~50+ tools so any agent host can use Sera |
-| **sera-agents** | Templates, bundled CLI agent, x402 service, host integrations; site at [agents.sera.cx](https://agents.sera.cx) |
-| **Contracts** (`orderbook-contract-v2`) | On-chain Sera, Vault, SOR, batcher |
-| **sera-pay** | Merchant Pay product (links, QR, multi-currency checkout) |
-| **Earn / On Par / gSera** | LP yield, same-peg 1:1 clearing, community loyalty points — see products-overview.md |
-| **Ask Sera** (`sera-ask`) | Grounded Q&A + live public API reads (this app) |
-
-See also: `products-overview.md`, `earn.md`, `pay.md`, `gsera.md`, `on-par.md`, `roadmap.md`, `v1-vs-v2.md`, `links.md`, `mainnet-liquidity.md`, `live-tools.md`, `quoting-liquidity.md`.
+| Swap / API | Live FX CLOB + REST (`api.sera.cx`) |
+| Earn | LP yield from FX spreads (Virtual Liquidity) |
+| Pay | Merchant links / QR / checkout (`sera-cx/sera-pay`) |
+| Agents | MCP + templates + gateway (`agents.sera.cx`) |
+| On Par™ | Same-peg stables at 1:1 |
+| gSera | Loyalty points from referrals when they trade (not from content); XP is separate |
+| Card | Separate waitlist product (when mentioned on product sites) |
 
 ## Networks
 
-| | Mainnet | Testnet (Sepolia) |
+| | Mainnet | Sepolia |
 |---|---|---|
-| API | `https://api.sera.cx/api/v1` | `https://api.testnet.sera.cx/api/v1` **or** `https://api-testnet.sera.cx/api/v1` |
+| API | `https://api.sera.cx/api/v1` | `https://api.testnet.sera.cx/api/v1` or `https://api-testnet.sera.cx/api/v1` |
 | App | https://sera.cx/ | https://testnet.sera.cx/ |
-| Docs | [docs.sera.cx](https://docs.sera.cx) | [docs.testnet.sera.cx](https://docs.testnet.sera.cx) (current REST/v2 guide) |
+| Docs | https://docs.sera.cx | https://docs.testnet.sera.cx |
 | chain_id | `1` | `11155111` |
 
-Always bootstrap contracts from `GET /config` — never hardcode verifying contracts or the EIP-712 domain if you can avoid it.
+Bootstrap contracts from `GET /config`. Prefer **v2** (Vault + signed orders). Legacy **v1** (Router/PriceBook + Goldsky) still exists — do not mix them.
 
-**Status:** Sera is **live on Ethereum Mainnet** (`chain_id = 1`) and on **Sepolia** testnet (`11155111`). See `status-faq.md`.
+## Founder / company links (when asked)
 
-**Architecture note:** official REST / MCP / Pay use **v2** signed-order + Vault. An older **v1** on-chain Router + PriceBook model also exists (GraphQL subgraph) — see `v1-vs-v2.md`. Do not confuse third-party sample apps with official products (`sample-repo.md`).
+| Profile | URL |
+|---|---|
+| LinkedIn | https://www.linkedin.com/in/douglasgan |
+| X | https://x.com/DouglasGan |
+| Company LinkedIn | https://www.linkedin.com/company/seraprotocol |
+| Company X | https://x.com/seraprotocol |
 
-## What this assistant is for
+## Ask Sera vs trading tools
 
-- Explaining protocol concepts, signing, MCP tools, agents, and integration patterns
-- **Live read tools** for catalogs and public market data (tokens, markets, FX reference, health, config, swap quotes) — same public REST data sera-mcp uses
-- Distinguishing reference FX (`/fx/rate`) from executable quotes (`/swap/quote`)
-- Pointing to the right repo / endpoint / tool
-- Warning about known footguns (Order signing defaults, uuid_int, cancel ID types, pair-specific `no_liquidity`)
+- **Ask Sera** — grounded Q&A + optional live public reads (`/tokens`, `/markets`, `/fx/rate`, `/health`, `/config`).
+- **sera-mcp / sera-agent** — quotes and settlement tooling. Ask Sera does not sign or place orders.
 
-## What this assistant is NOT
-
-- A trading bot that signs or places orders — use `sera-mcp` / `sera-agent` for execution
-- A wallet or custodian — it never holds keys
-- A substitute for authenticated account APIs (balances, withdraw) unless those are explicitly wired later
-- A community link bot — Telegram/X only when the user asks about community or support
+## Keywords
+what is sera, overview, founder, douglas gan, ceo, live, mainnet, product, protocol

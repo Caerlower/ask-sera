@@ -2,12 +2,30 @@
   "name": "ask-sera",
   "version": "0.1.0",
   "private": true,
-  "description": "Ask Sera — grounded Q&A assistant for Sera Protocol",
+  "description": "Community grounded Q&A assistant for Sera Protocol",
+  "homepage": "https://github.com/Caerlower/ask-sera#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Caerlower/ask-sera.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Caerlower/ask-sera/issues"
+  },
+  "keywords": [
+    "sera",
+    "sera-protocol",
+    "stablecoin",
+    "fx",
+    "rag",
+    "groq",
+    "nextjs",
+    "ai"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@ai-sdk/groq": "^1.2.9",
@@ -28,6 +46,6 @@
   "engines": {
     "node": ">=18.17"
   },
-  "license": "MIT",
-  "author": "Sera Protocol"
+  "packageManager": "pnpm@10.13.1",
+  "license": "MIT"
 }

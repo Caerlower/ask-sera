@@ -1,8 +1,9 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { FormEvent, useEffect, useRef } from "react";
+import { FormEvent, useCallback, useEffect, useRef } from "react";
 import { Markdown } from "@/components/Markdown";
+import { publicErrorMessage } from "@/lib/errors";
 import styles from "./Chat.module.css";
 
 const SUGGESTIONS = [
@@ -11,6 +12,8 @@ const SUGGESTIONS = [
   "How does Earn work for LPs?",
   "Who founded Sera?",
 ];
+
+const NEAR_BOTTOM_PX = 96;
 
 export function Chat() {
   const {
@@ -28,16 +31,49 @@ export function Chat() {
     api: "/api/chat",
   });
 
-  const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const stickToBottomRef = useRef(true);
+  const rafScrollRef = useRef<number | null>(null);
   const hasMessages = messages.length > 0;
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "auto") => {
+    const root = scrollRef.current;
+    if (!root || !stickToBottomRef.current) return;
+    root.scrollTo({ top: root.scrollHeight, behavior });
+  }, []);
+
+  const scheduleScroll = useCallback(() => {
+    if (rafScrollRef.current != null) return;
+    rafScrollRef.current = requestAnimationFrame(() => {
+      rafScrollRef.current = null;
+      // Instant scroll while streaming — "smooth" stacks and bounces the viewport
+      scrollToBottom("auto");
+    });
+  }, [scrollToBottom]);
 
   useEffect(() => {
     const root = scrollRef.current;
     if (!root) return;
-    root.scrollTo({ top: root.scrollHeight, behavior: "smooth" });
-  }, [messages, isLoading]);
+
+    const onScroll = () => {
+      const gap = root.scrollHeight - root.scrollTop - root.clientHeight;
+      stickToBottomRef.current = gap <= NEAR_BOTTOM_PX;
+    };
+
+    root.addEventListener("scroll", onScroll, { passive: true });
+    return () => root.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    scheduleScroll();
+  }, [messages, isLoading, scheduleScroll]);
+
+  useEffect(() => {
+    return () => {
+      if (rafScrollRef.current != null) cancelAnimationFrame(rafScrollRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -46,11 +82,8 @@ export function Chat() {
     el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
   }, [input]);
 
-  const sendSuggestion = (text: string) => {
-    void append({ role: "user", content: text });
-  };
-
-  const onSubmit = (e: FormEvent) => {
+  const pinAndSubmit = (e: FormEvent) => {
+    stickToBottomRef.current = true;
     handleSubmit(e);
   };
 
@@ -58,8 +91,11 @@ export function Chat() {
     stop();
     setMessages([]);
     setInput("");
+    stickToBottomRef.current = true;
     textareaRef.current?.focus();
   };
+
+  const lastId = messages[messages.length - 1]?.id;
 
   return (
     <div className={styles.app}>
@@ -68,8 +104,8 @@ export function Chat() {
       <header className={styles.nav}>
         <div className={styles.navInner}>
           <button type="button" className={styles.brand} onClick={newChat} aria-label="New chat">
-            <span className={styles.logoMark}>S</span>
-            <span className={styles.brandText}>Ask Sera</span>
+            <img className={styles.logoWord} src="/sera-word.svg" alt="Sera" width={74} height={12} />
+            <span className={styles.brandAsk}>Ask</span>
           </button>
           <div className={styles.navRight}>
             {hasMessages && (
@@ -109,7 +145,10 @@ export function Chat() {
                     type="button"
                     className={styles.chip}
                     style={{ animationDelay: `${40 + i * 35}ms` }}
-                    onClick={() => sendSuggestion(q)}
+                    onClick={() => {
+                      stickToBottomRef.current = true;
+                      void append({ role: "user", content: q });
+                    }}
                   >
                     {q}
                   </button>
@@ -118,8 +157,9 @@ export function Chat() {
             </section>
           ) : (
             <div className={styles.thread} aria-live="polite">
-              {messages.map((m) =>
-                m.role === "user" ? (
+              {messages.map((m) => {
+                const streaming = isLoading && m.role === "assistant" && m.id === lastId;
+                return m.role === "user" ? (
                   <article key={m.id} className={`${styles.row} ${styles.rowUser}`}>
                     <div className={styles.userBubble}>
                       <p>{m.content}</p>
@@ -129,10 +169,11 @@ export function Chat() {
                   <article key={m.id} className={`${styles.row} ${styles.rowAssistant}`}>
                     <div className={styles.assistant}>
                       <Markdown content={m.content} />
+                      {streaming && <span className={styles.caret} aria-hidden />}
                     </div>
                   </article>
-                ),
-              )}
+                );
+              })}
               {isLoading && messages[messages.length - 1]?.role === "user" && (
                 <article className={`${styles.row} ${styles.rowAssistant}`}>
                   <div className={styles.assistant}>
@@ -144,7 +185,6 @@ export function Chat() {
                   </div>
                 </article>
               )}
-              <div ref={bottomRef} />
             </div>
           )}
         </div>
@@ -154,13 +194,13 @@ export function Chat() {
         <div className={styles.dockInner}>
           {error && (
             <div className={styles.error} role="alert">
-              <span>{error.message || "Something went wrong."}</span>
+              <span>{publicErrorMessage(error)}</span>
               <button type="button" onClick={() => reload()}>
                 Retry
               </button>
             </div>
           )}
-          <form className={styles.composer} onSubmit={onSubmit}>
+          <form className={styles.composer} onSubmit={pinAndSubmit}>
             <textarea
               ref={textareaRef}
               value={input}
@@ -172,6 +212,7 @@ export function Chat() {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   if (!isLoading && input.trim()) {
+                    stickToBottomRef.current = true;
                     handleSubmit(e as unknown as FormEvent);
                   }
                 }
