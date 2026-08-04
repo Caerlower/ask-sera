@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Community grounded Q&A assistant for Sera Protocol",
-  "homepage": "https://github.com/Caerlower/ask-sera#readme",
+  "homepage": "https://ask-sera.vercel.app",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Caerlower/ask-sera.git"

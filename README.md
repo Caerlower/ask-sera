@@ -4,7 +4,7 @@
 
 Community project. Not an official Sera product. Explains only — does not trade, sign, or place orders.
 
-[Sera docs](https://docs.sera.cx) · [sera-mcp](https://github.com/sera-cx/sera-mcp) · [agents.sera.cx](https://agents.sera.cx)
+[Live demo](https://ask-sera.vercel.app) · [Sera docs](https://docs.sera.cx) · [sera-mcp](https://github.com/sera-cx/sera-mcp) · [agents.sera.cx](https://agents.sera.cx)
 
 ---
 
@@ -152,6 +152,8 @@ Chunks split on `##` headings. Prefer updating an existing file over adding a ne
 ---
 
 ## Deploy
+
+Live: [https://ask-sera.vercel.app](https://ask-sera.vercel.app)
 
 1. Import this repo into [Vercel](https://vercel.com/).
 2. Set `GROQ_API_KEYS` (and optional vars above).
