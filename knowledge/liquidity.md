@@ -24,12 +24,12 @@ Anyone can LP on mainnet (see Earn).
 
 ## Historical note (2026-07-29) — re-check live
 
-Dated integrator thread (Blake Sieders) + Douglas Gan reply — **historical**, not a live dashboard:
+Dated integrator thread + team reply — **historical**, not a live dashboard:
 
 - `/fx/rate` recovered; `POST /api-keys` sometimes **503**.
 - Mainnet **USDC↔EURC** `/swap/quote` → `no_liquidity` (also seen ~2026-07-21).
 - Same day **USDC↔USDT** returned a tradeable quote.
-- Douglas: anyone can LP; team working on more EURC (and similar) LP — **no hard ETA stated**.
+- Reply: anyone can LP; team working on more EURC (and similar) LP — **no hard ETA stated**.
 
 ## Keywords
 no_liquidity, NO_LIQUIDITY, eurc, depth, corridor, market maker, fx/rate, swap/quote

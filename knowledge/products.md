@@ -1,47 +1,70 @@
-# Products — Earn, Pay, On Par, gSera, roadmap
+# Products — Swap, Earn, Cashback, Pay, On Par, gSera, Card
+
+## Product taxonomy (use this for “what products…”)
+
+**End-user / app products** (in the Sera app at [app.sera.cx](https://app.sera.cx)):
+
+| Product | Status | What it is |
+|---|---|---|
+| **Swap** | Live | Stablecoin FX CLOB + on-chain settlement |
+| **Earn** | Live | LP / Virtual Liquidity — earn FX spread when quotes fill |
+| **Cashback** | Live in app | Shop partner stores; cashback paid in **MYRT** |
+| **On Par™** | Live feature | Same-peg stables at **1:1** (not “real FX rate”) |
+| **gSera** | Live loyalty | Points from **referrals when referred people trade** (not content) |
+| **Transfer / Wallet** | Live app rails | Move / hold balances in-app |
+| **SeraPay** | Open rails | Merchant links / QR / checkout (`sera-cx/sera-pay`) |
+| **Stablecoin Card** | Coming soon / waitlist | Marketing on sera.cx — **not live spend** |
+
+**Developer tooling** (not peers of Swap/Earn for end users unless asked about building/integrating):
+
+- REST API, **sera-mcp**, **sera-agents** / [agents.sera.cx](https://agents.sera.cx/) — developer tooling on the settlement rails
+
+## Cashback (important)
+
+- **UI:** [https://app.sera.cx/en/cashback](https://app.sera.cx/en/cashback)
+- **Live merchants API:** `GET https://app.sera.cx/api/cashback/merchants` — live list (over any static list)
+- Flow: choose a store → shop as usual → cashback tracked to wallet → paid after the store confirms the order
+- Rewards currency: **MYRT**
+- Rates are “up to” and can depend on category, region, and store rules; payout often ~45 days
+- Fallback examples if live fetch fails (verify against API when possible): **Agoda** (Travel), **Trip.com** (Travel), **iHerb** (Health)
+- Cashback is a live app feature at [app.sera.cx/en/cashback](https://app.sera.cx/en/cashback) (not primarily documented on docs.sera.cx)
 
 ## Earn (LP)
 
 LPs deposit stables and earn the **FX spread** when swaps fill their quotes (primary story is spread, not emissions). **Virtual Liquidity** lets one deposit quote across multiple corridors.
 
-- **Matched** / **Unmatched** deposit modes are described in product docs.
-- Anyone can LP on mainnet.
-- Thin corridors usually mean missing maker depth, not an outage.
-
-Product pages may show illustrative APYs or efficiency claims — **not guarantees**. Prefer docs for risks (smart-contract, oracles, volume-dependent yield).
-
-Pages: [sera.cx/earn](https://sera.cx/earn), [docs Earn](https://docs.sera.cx/protocol/earn/).
+- Product pages may show illustrative APYs — **not guarantees**
+- Pages: [sera.cx/earn](https://sera.cx/earn), [docs Earn](https://docs.sera.cx/protocol/earn/)
 
 ## Pay (SeraPay)
 
-Merchant payments: links, branded QR, dashboard, multi-currency checkout. Repo: https://github.com/sera-cx/sera-pay. Related: x402 flows in sera-agents. Stablecoin **card** is a separate waitlist product when listed on product sites.
+Merchant payments: links, branded QR, dashboard, multi-currency checkout. Repo: https://github.com/sera-cx/sera-pay.
 
 ## On Par™
 
-Same-peg stables at **1:1** regardless of issuer (examples used in product copy: USDT↔USDC; EURC↔EURS; BRZ↔BRLA). Cross-fiat families use live FX. [sera.cx/on-par](https://sera.cx/on-par)
+Same-peg stables at **1:1** regardless of issuer (e.g. USDT↔USDC). Cross-fiat families use live FX. [sera.cx/on-par](https://sera.cx/on-par)
 
 ## gSera
 
-Loyalty points — **not** the settlement token; not required to trade.
+Loyalty points — **not** the settlement token.
 
-**How gSera is earned:** via **referrals, and only when those referred people trade**. Creating content does **not** earn gSera.
+**gSera:** referrals **only when referred people trade**. Content → **XP**, not gSera.
 
-**XP** is separate — posts, content, and other community contributions earn XP for rank/badges.
+Hub: https://community.sera.cx/ only.
 
-Hub: https://community.sera.cx/ only. Token2049 Evangelist Trips: see `community.md`. Do not invent claim amounts, TGE, or token addresses.
+## Card
 
-## Roadmap (marketing — subject to change)
+Homepage: “Coming soon / Waitlist open” — not a live spend product.
 
-Public framing has used phases along these lines; treat as **non-binding**:
+## Roadmap (non-binding marketing)
 
-| Phase | Focus (as marketed) |
+| Phase | Focus |
 |---|---|
 | Swap | CLOB + settle (**live**) |
 | Earn | Retention / Pay / cards (later) |
 | Lend | Credit / collateral (later) |
-| Accelerate | Derivatives (later) |
 
-**Live today:** Swap / `orderbook-contract-v2`. Items such as FCICAMM or ERC-1155 position NFTs appear as **planned**, not live v2.
+**Live core today:** Swap / `orderbook-contract-v2`.
 
 ## Keywords
-earn, lp, yield, apy, pay, serapay, on par, same-peg, gsera, xp, loyalty, referral, roadmap
+products, product, swap, earn, cashback, cash back, stores, agoda, trip.com, iherb, myrt, pay, serapay, on par, same-peg, gsera, xp, card, waitlist, roadmap

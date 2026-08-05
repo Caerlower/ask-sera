@@ -27,7 +27,7 @@ Balances, place/cancel orders, withdraw, transfers, API key admin.
 | Meaning | Reference FX | Executable + `route_params` |
 | `no_liquidity` | No | Yes |
 
-Never treat a healthy `/fx/rate` as proof a corridor is tradeable.
+A healthy `/fx/rate` is reference mid only — it does not prove a corridor is tradeable.
 
 ## Signing (EIP-712 Order) — footguns
 

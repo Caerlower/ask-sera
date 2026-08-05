@@ -28,18 +28,28 @@ Ask Sera explains. sera-agent / mcp execute.
 
 ## Ask Sera live prefetch
 
-Server-side public REST (no API key), same catalogs as mcp reads:
+Three layers, all server-side (prefetch — not Groq tool-calling):
+
+| Layer | When | Source |
+|---|---|---|
+| Live REST | catalogs / FX / health / config | public Sera API |
+| Firecrawl | product / team / community / docs pages | allowlisted official URLs (TTL + weekly cron) |
+| Exa | announcements / “what’s new” | recent official Sera domains (tweets via Firecrawl → x.com/seraprotocol) |
+
+REST question map:
 
 | Question | Prefetch |
 |---|---|
 | All currencies/tokens | `GET /tokens` — full list |
 | Is X supported? | token search |
 | Pairs | `GET /markets` |
-| FX right now | `GET /fx/rate` |
+| FX / swap rate (e.g. USDC→SGD) | Live indicative \`POST /swap/quote\` (primary). FX mid only if they ask for reference/FX, or as a quiet aside. Present as live indicative quote (not a probe/sim label). |
 | Contracts/domain | `GET /config` |
 | API up? | `GET /health` |
 
-Never truncate full lists with “and ~N more”. Never tell the user to call `/tokens` unless the live fetch failed. Does not sign, place orders, or read private balances. Default network: mainnet (`SERA_NETWORK` / `SERA_API_BASE` optional).
+Fiat names in rate questions map to preferred tokens (SGD→XSGD, USD→USDC). Same read path as MCP `get_fx_rate` / `get_quote(simulate)` — Ask Sera explains, it does not execute.
+
+Full currency lists: every symbol from the live snapshot (no “and ~N more”). Point to `/tokens` only when the live fetch failed. Does not sign, place orders, or read private balances. Default network: mainnet (`SERA_NETWORK` / `SERA_API_BASE` optional).
 
 ## Keywords
 mcp, sera-mcp, sera-agent, agents, agents.sera.cx, x402, doctor, get_quote, live tokens, list currencies

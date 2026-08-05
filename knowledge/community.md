@@ -1,6 +1,6 @@
 # Community and Token2049
 
-Use these links when the user asks about community, Token2049, sponsorships, evangelist trips, Telegram, socials, support, or founder profiles.
+Official community / Token2049 / sponsorship / Telegram / socials / support links:
 
 ## Official URLs
 
@@ -9,14 +9,13 @@ Use these links when the user asks about community, Token2049, sponsorships, eva
 | https://community.sera.cx/ | **Sera Community** — only community hub (tracks, XP/badges, gSera, Evangelist Trips) |
 | https://token2049.sera.cx/ | Token2049 HQ for selected people (invite / allowlist) |
 | https://sera.cx/ | Product site (Gold Sponsor at Token2049 Singapore) |
+| https://www.sera.cx/team | Team page |
 | https://t.me/seraprotocol | Official Telegram group |
 | https://x.com/seraprotocol | Company X |
-| https://x.com/DouglasGan | Founder X |
-| https://www.linkedin.com/in/douglasgan | Founder LinkedIn |
 | https://www.linkedin.com/company/seraprotocol | Company LinkedIn |
 | support@sera.cx | Support email |
 
-**Do not send users to `ambassador.sera.cx`** — it redirects to community.sera.cx; treat **community.sera.cx** as the only community site.
+**community.sera.cx** is the only community hub (`ambassador.sera.cx` redirects there).
 
 There is an official Telegram **group**. There is **no** official Telegram trading bot.
 
@@ -33,9 +32,9 @@ There is an official Telegram **group**. There is **no** official Telegram tradi
 | Info / apply | https://community.sera.cx/ |
 | After selection | https://token2049.sera.cx/ (invite-only) |
 
-Do **not** invent: side-event calendars, application deadlines, scoring rubrics, or step-by-step “how to get picked” advice. Say selection is hand-picked and point to [community.sera.cx](https://community.sera.cx/).
+Public materials do not publish side-event calendars, application deadlines, scoring rubrics, or “how to get picked” steps. Selection is hand-picked — point to [community.sera.cx](https://community.sera.cx/).
 
-## gSera vs XP (do not conflate)
+## gSera vs XP
 
 | | **gSera** | **XP** |
 |---|---|---|
@@ -43,7 +42,7 @@ Do **not** invent: side-event calendars, application deadlines, scoring rubrics,
 | How earned | **Referrals, and only when those referred people trade** | Other contributions (content, posts, community activity, etc.) |
 | Not earned by | Creating content / posting alone | — |
 
-Never tell users they earn **gSera** by creating content. That earns **XP**. Do not invent XP formulas or gSera amounts — see community.sera.cx.
+Content and posting earn **XP**, not **gSera**. XP formulas / gSera amounts: see community.sera.cx.
 
 ## Community tracks (community.sera.cx)
 

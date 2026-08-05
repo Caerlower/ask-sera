@@ -6,8 +6,10 @@ Sera is **multi-currency settlement infrastructure for stablecoin FX**: quote, c
 
 - **Live product phase:** Swap (CLOB + settlement).
 - **Networks:** Ethereum Mainnet (`chain_id=1`) and Sepolia (`11155111`).
-- **Founder & CEO:** Douglas Gan.
-- **Surfaces:** Swap/API, Earn (LP), Pay, Agents/MCP, On Par (same-peg), gSera (loyalty points — not the settlement token).
+- **Team:** Multi-person engineering/ops team. No single public founder/CEO on official pages.
+- Founder answers: no named founder; ~12 engineers; backgrounds across FX/treasury/sovereign wealth/MM/HFT/actuarial/fintech/banking/DeFi/infra; 11 countries; three disciplines; angels = advisors (not employers roster).
+- Compound “what is Sera + founder”: protocol section then team section.
+- **Surfaces:** Swap (live), Earn (LP), Cashback (app — MYRT), On Par (same-peg), gSera (loyalty), Pay; Card = waitlist. MCP/agents = developer tooling, not end-user products.
 - Marketing materials also cite ~40 stablecoins / many fiat corridors; treat counts as approximate — prefer live `GET /tokens` for the current list.
 - Corridor depth varies; not every pair is always tradeable.
 
@@ -17,11 +19,12 @@ Sera is **multi-currency settlement infrastructure for stablecoin FX**: quote, c
 |---|---|
 | Swap / API | Live FX CLOB + REST (`api.sera.cx`) |
 | Earn | LP yield from FX spreads (Virtual Liquidity) |
+| Cashback | Partner stores; cashback in MYRT — [app.sera.cx/en/cashback](https://app.sera.cx/en/cashback) |
 | Pay | Merchant links / QR / checkout (`sera-cx/sera-pay`) |
-| Agents | MCP + templates + gateway (`agents.sera.cx`) |
 | On Par™ | Same-peg stables at 1:1 |
 | gSera | Loyalty points from referrals when they trade (not from content); XP is separate |
-| Card | Separate waitlist product (when mentioned on product sites) |
+| Card | Coming soon / waitlist — not live |
+| MCP / Agents | Developer tooling (`agents.sera.cx`) — not an end-user product |
 
 ## Networks
 
@@ -34,14 +37,13 @@ Sera is **multi-currency settlement infrastructure for stablecoin FX**: quote, c
 
 Bootstrap contracts from `GET /config`. Prefer **v2** (Vault + signed orders). Legacy **v1** (Router/PriceBook + Goldsky) still exists — do not mix them.
 
-## Founder / company links (when asked)
+## Company links (when asked)
 
 | Profile | URL |
 |---|---|
-| LinkedIn | https://www.linkedin.com/in/douglasgan |
-| X | https://x.com/DouglasGan |
 | Company LinkedIn | https://www.linkedin.com/company/seraprotocol |
 | Company X | https://x.com/seraprotocol |
+| Team page | https://www.sera.cx/team |
 
 ## Ask Sera vs trading tools
 
@@ -49,4 +51,4 @@ Bootstrap contracts from `GET /config`. Prefer **v2** (Vault + signed orders). L
 - **sera-mcp / sera-agent** — quotes and settlement tooling. Ask Sera does not sign or place orders.
 
 ## Keywords
-what is sera, overview, founder, douglas gan, ceo, live, mainnet, product, protocol
+what is sera, overview, team, company, live, mainnet, product, protocol

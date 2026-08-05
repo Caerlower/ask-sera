@@ -1,12 +1,12 @@
 # Knowledge pack
 
-Ask Sera answers from these markdown files (plus optional live public API prefetch). It does **not** crawl the web.
+Ask Sera answers from curated markdown, live public REST, optional Firecrawl allowlisted pages, and optional Exa news search. It does **not** open-crawl the web.
 
 | File | Topic |
 |---|---|
 | `assistant-policy.md` | Answer rules (always loaded) |
-| `overview.md` | What Sera is, status, founder |
-| `products.md` | Earn, Pay, On Par, gSera, roadmap |
+| `overview.md` | What Sera is, status, team |
+| `products.md` | Swap, Earn, Cashback, Pay, On Par, gSera, Card |
 | `api.md` | REST auth, signing, errors |
 | `liquidity.md` | FX vs quote, `no_liquidity` |
 | `agents.md` | MCP, agents, live prefetch |

@@ -2,18 +2,22 @@
 
 ## Bootstrap — always `GET /config`
 
-Authoritative fields include: `sera_address`, `vault_address`, `sor_address`, EIP-712 domain `{name:"Sera", version:"1", chainId, verifyingContract}`, `limits.vl_batch`. Do not hardcode the domain. `executor_id` comes from **`GET /health`**.
+Authoritative fields include: `sera_address`, `vault_address`, `sor_address`, EIP-712 domain `{name:"Sera", version:"1", chainId, verifyingContract}`, `limits.vl_batch`. `executor_id` comes from **`GET /health`**. Prefer live `/config` over hardcoding.
 
 ## v2 addresses (snapshot — prefer live `/config`)
+
+Live `GET /config` returns **Sera**, **Vault**, and **SeraSOR** only. Those three are authoritative.
 
 | | Mainnet | Sepolia |
 |---|---|---|
 | Sera | `0xB5C50C5D5f038404F85970b7f5B7259C4AC0E198` | `0x83475A1bD98a8DC2DCd507A747e4DC85da241D6e` |
 | Vault | `0xC7d4Fd2638e6630C8C61329878676b88A8A24D43` | `0x3c7945840bAE0d7e7f3824Ebccef1962629250F0` |
 | SeraSOR | `0xa7A0cf7cd6f043fCA23f29d8ae5aae6b46e11c18` | `0x83c1368110B640A729f3810De5FBe94b99aa5668` |
-| SeraBatcher | `0x1f4b366f4145A92978df4bEeb6BdE71bC652F034` | `0x29F99C5dc36D555933700BE3dffEa6e721a27f0a` |
+| SeraBatcher (repo/docs; **not** in `/config`) | `0x1f4b366f4145A92978df4bEeb6BdE71bC652F034` | `0x29F99C5dc36D555933700BE3dffEa6e721a27f0a` |
 
-Roles (as documented): **Sera** matching/settlement · **Vault** custody · **SOR** `executeIntent` · **Batcher** batch match.
+There are no official `SeraMCP` / `SeraPay` settlement contract addresses in `/config`. MCP and Pay are clients of these rails.
+
+Roles: **Sera** matching/settlement · **Vault** custody · **SOR** `executeIntent` · **Batcher** batch match (when listed in repo).
 
 Repo: https://github.com/sera-cx/orderbook-contract-v2 (PolyForm Noncommercial). Powers REST, mcp, Pay.
 

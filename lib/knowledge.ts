@@ -1,3 +1,5 @@
+import "server-only";
+
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
@@ -25,6 +27,12 @@ const ALIASES: Record<string, string[]> = {
   gsera: ["loyalty", "points", "rewards", "referral", "xp"],
   xp: ["gsera", "badge", "community", "rank"],
   referral: ["gsera", "trade", "community"],
+  cashback: ["cash back", "stores", "merchants", "myrt", "agoda"],
+  "cash back": ["cashback", "stores", "myrt"],
+  agoda: ["cashback", "travel"],
+  iherb: ["cashback", "health"],
+  product: ["products", "swap", "earn", "cashback", "features"],
+  products: ["product", "swap", "earn", "cashback", "features"],
   earn: ["lp", "yield", "liquidity", "apy", "spread", "maker"],
   pay: ["serapay", "payment", "merchant", "checkout", "qr"],
   agent: ["agents", "mcp", "sera-agent", "sera-mcp"],
@@ -58,16 +66,17 @@ const ALIASES: Record<string, string[]> = {
   integrator: ["api", "quote", "swap", "error_code"],
   no_liquidity: ["liquidity", "depth", "maker", "corridor"],
   "no-liquidity": ["no_liquidity", "liquidity", "depth"],
-  founder: ["douglas", "gan", "ceo", "company"],
-  founders: ["founder", "douglas", "gan", "ceo"],
-  ceo: ["founder", "douglas", "gan"],
-  douglas: ["gan", "founder", "ceo"],
-  gan: ["douglas", "founder", "ceo"],
-  company: ["founder", "ceo", "singapore", "overview"],
-  singapore: ["company", "headquarters"],
-  linkedin: ["douglas", "gan", "founder", "profile", "company"],
-  twitter: ["x.com", "douglas", "seraprotocol", "social"],
-  "x.com": ["twitter", "douglas", "seraprotocol"],
+  founder: ["team", "company", "overview"],
+  founders: ["team", "company", "overview"],
+  ceo: ["team", "company"],
+  douglas: ["team", "company"],
+  gan: ["team", "company"],
+  company: ["team", "overview"],
+  team: ["company", "overview"],
+  singapore: ["company"],
+  linkedin: ["company", "seraprotocol", "profile"],
+  twitter: ["x.com", "seraprotocol", "social"],
+  "x.com": ["twitter", "seraprotocol"],
 };
 
 const ALWAYS_INCLUDE = new Set(["assistant-policy.md"]);
@@ -191,12 +200,16 @@ function preferSources(query: string): string[] {
   if (/\b(gsera|loyalty|points|xp|referral|referrals)\b/.test(q)) {
     preferred.push("products.md", "community.md");
   }
+  if (/\b(cashback|cash back|cash-back|agoda|iherb|trip\.com|myrt)\b/.test(q)) {
+    preferred.push("products.md");
+  }
   if (/\b(earn|lp|yield|apy|liquidity provider|virtual liquidity)\b/.test(q)) {
     preferred.push("products.md", "liquidity.md");
   }
   if (/\b(pay|serapay|merchant|checkout|qr)\b/.test(q)) preferred.push("products.md");
   if (/\b(on par|on-par|same-peg|1:1)\b/.test(q)) preferred.push("products.md", "liquidity.md");
   if (/\b(mcp|sera-mcp|sera-agent|agent)\b/.test(q)) preferred.push("agents.md");
+  if (/\b(card|waitlist)\b/.test(q)) preferred.push("products.md");
   if (/\b(sign|order|uuid|eip-712|eip712|error_code|gas_mode|route_params)\b/.test(q)) {
     preferred.push("api.md");
   }
@@ -210,7 +223,7 @@ function preferSources(query: string): string[] {
     preferred.push("community.md", "overview.md", "products.md");
   }
   if (
-    /\b(founder|founders|ceo|douglas|gan|who (founded|started|created|built|runs)|headquarters|hq|based|singapore|team|about (the )?compan|who is behind|linkedin|twitter)\b/.test(
+    /\b(founder|founders|ceo|team|who (founded|started|created|built|runs)|headquarters|hq|based|singapore|about (the )?compan|who is behind|linkedin|twitter)\b/.test(
       q,
     )
   ) {
@@ -291,11 +304,17 @@ export function retrieveKnowledge(query: string, limit = 8): KnowledgeChunk[] {
 
   for (const source of ALWAYS_INCLUDE) {
     const policyChunks = chunks.filter((c) => c.source === source);
-    for (const policy of policyChunks) {
-      if (![...byId.values()].some((c) => c.source === source)) {
-        byId.set(policy.id, policy);
-      }
-    }
+    if (policyChunks.length === 0) continue;
+    if ([...byId.values()].some((c) => c.source === source)) continue;
+    // Concatenate all sections so we don't only inject the H1 stub
+    const mergedPolicy: KnowledgeChunk = {
+      id: `${source}#all`,
+      source,
+      title: policyChunks[0]!.title,
+      text: policyChunks.map((c) => c.text).join("\n\n"),
+      tokens: new Set(policyChunks.flatMap((c) => [...c.tokens])),
+    };
+    byId.set(mergedPolicy.id, mergedPolicy);
   }
 
   const merged = [...byId.values()];
@@ -319,7 +338,7 @@ export function formatRetrievedContext(chunks: KnowledgeChunk[]): string {
 
   return [
     "Ground truth for this turn. Prefer specialist docs (liquidity, api, agents, contracts) over overview when they apply.",
-    "If notes are dated community snapshots, say to re-check live APIs. Do not invent ETAs or current depth.",
+    "If notes are dated community snapshots, re-check live APIs for current depth.",
     "",
     body,
   ].join("\n");
