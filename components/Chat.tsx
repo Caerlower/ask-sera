@@ -2,7 +2,7 @@
 
 import { useChat } from "ai/react";
 import { FormEvent, useCallback, useEffect, useRef } from "react";
-import { Markdown } from "@/components/Markdown";
+import { Markdown, type SourceLink } from "@/components/Markdown";
 import { publicErrorMessage } from "@/lib/errors";
 import styles from "./Chat.module.css";
 
@@ -10,10 +10,34 @@ const SUGGESTIONS = [
   "List all supported currencies",
   "What is gSera?",
   "How does Earn work for LPs?",
-  "Who founded Sera?",
+  "Tell me about Token2049 sponsorship",
 ];
 
 const NEAR_BOTTOM_PX = 96;
+
+function sourcesFromMessage(annotations: unknown): SourceLink[] {
+  if (!Array.isArray(annotations)) return [];
+  const out: SourceLink[] = [];
+  const seen = new Set<string>();
+  for (const item of annotations) {
+    if (!item || typeof item !== "object") continue;
+    const sources = (item as { sources?: unknown }).sources;
+    if (!Array.isArray(sources)) continue;
+    for (const s of sources) {
+      if (!s || typeof s !== "object") continue;
+      const url = (s as { url?: unknown }).url;
+      const label = (s as { label?: unknown }).label;
+      if (typeof url !== "string" || !url) continue;
+      if (seen.has(url)) continue;
+      seen.add(url);
+      out.push({
+        href: url,
+        label: typeof label === "string" && label ? label : "Source",
+      });
+    }
+  }
+  return out;
+}
 
 export function Chat() {
   const {
@@ -168,7 +192,10 @@ export function Chat() {
                 ) : (
                   <article key={m.id} className={`${styles.row} ${styles.rowAssistant}`}>
                     <div className={styles.assistant}>
-                      <Markdown content={m.content} />
+                      <Markdown
+                        content={m.content}
+                        sources={sourcesFromMessage(m.annotations)}
+                      />
                       {streaming && <span className={styles.caret} aria-hidden />}
                     </div>
                   </article>
