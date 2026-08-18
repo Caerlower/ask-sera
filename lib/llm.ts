@@ -180,12 +180,14 @@ export async function streamChatWithFailover(args: ChatStreamArgs): Promise<Resp
       // getErrorMessage sanitizes it into the data-stream `3:` chunk.
       let lastRawError: unknown;
 
+      // Groq reserves prompt + max_tokens against the model's TPM bucket.
+      // openai/gpt-oss-120b on_demand is 8k TPM — 8192 max_tokens alone 413s.
       const result = streamText({
         model: groq(modelId),
         system: args.system,
         messages: args.messages,
         temperature: 0.2,
-        maxTokens: 8192,
+        maxTokens: 3200,
         maxRetries: 0,
         providerOptions: {
           groq: {
