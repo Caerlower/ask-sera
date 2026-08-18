@@ -255,7 +255,7 @@ export function isPureRateQuery(query: string): boolean {
 
 /**
  * Fetch live public Sera data based on the user question.
- * Prefer this over Groq native tool-calling (unreliable on llama-3.3-70b).
+ * Prefer this over Groq native tool-calling (unreliable on the hosted chat models).
  */
 export async function prefetchLiveContext(query: string): Promise<LivePrefetch | null> {
   const q = query.toLowerCase();

@@ -25,7 +25,7 @@ Community project. Not an official Sera product. Explains only — does not trad
 
 ## Overview
 
-Builders and curious users ask about Sera in plain language. Ask Sera retrieves curated markdown, then **prefetches** three live layers in parallel (server-side — more reliable than Groq tool-calling on Llama), and streams an answer through Groq.
+Builders and curious users ask about Sera in plain language. Ask Sera retrieves curated markdown, then **prefetches** three live layers in parallel (server-side — more reliable than Groq tool-calling), and streams an answer through Groq.
 
 - **Live catalogs** — tokens, markets, FX, health, config via public REST (never stored in a vector DB)
 - **Self-updating pages** — Firecrawl allowlist + TTL cache + weekly cron warm
@@ -146,7 +146,7 @@ pnpm build && pnpm start  # production locally
 | -------- | -------- | ----------- |
 | `GROQ_API_KEYS` | Yes | Comma-separated Groq keys. On rate limit, the next key is tried. |
 | `GROQ_API_KEY` / `_2` / `_3` | Alt | Numbered keys instead of a list |
-| `GROQ_MODEL` | No | Default `llama-3.3-70b-versatile` |
+| `GROQ_MODEL` | No | Default `openai/gpt-oss-120b` (Groq replacement for decommissioned `llama-3.3-70b-versatile`; alt: `qwen/qwen3.6-27b`) |
 | `SERA_NETWORK` | No | `mainnet` (default) or `sepolia` |
 | `SERA_API_BASE` | No | Override REST base for the *default* network only (`SERA_NETWORK`). Cross-network `/config` still uses built-in bases unless `SERA_API_BASE_SEPOLIA` / `SERA_API_BASE_MAINNET` are set. |
 | `FIRECRAWL_API_KEY` | No | Layer 2 — allowlisted official page scrapes |

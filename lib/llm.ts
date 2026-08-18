@@ -9,7 +9,7 @@ import {
   publicErrorMessage,
 } from "@/lib/errors";
 
-const DEFAULT_MODEL = "llama-3.3-70b-versatile";
+const DEFAULT_MODEL = "openai/gpt-oss-120b";
 
 /** Per-key cooldown after rate limit (ms since epoch). Process-local. */
 const keyCooldownUntil = new Map<number, number>();
@@ -185,8 +185,14 @@ export async function streamChatWithFailover(args: ChatStreamArgs): Promise<Resp
         system: args.system,
         messages: args.messages,
         temperature: 0.2,
-        maxTokens: 3200,
+        maxTokens: 8192,
         maxRetries: 0,
+        providerOptions: {
+          groq: {
+            // gpt-oss is a reasoning model; keep CoT off the user-facing stream.
+            reasoningFormat: "hidden",
+          },
+        },
       });
 
       const response = result.toDataStreamResponse({
